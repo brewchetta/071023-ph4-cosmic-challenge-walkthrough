@@ -25,23 +25,23 @@ class Planet(db.Model, SerializerMixin):
     distance_from_earth = db.Column(db.Integer)
     nearest_star = db.Column(db.String)
 
-    # Add relationship
+    missions = db.relationship('Mission', back_populates='planet')
+    scientists = association_proxy('missions', 'scientist')
 
-    # Add serialization rules
+    serialize_rules = ("-missions.planet",)
 
 
 class Scientist(db.Model, SerializerMixin):
     __tablename__ = 'scientists'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    field_of_study = db.Column(db.String)
+    name = db.Column(db.String, nullable=False)
+    field_of_study = db.Column(db.String, nullable=False)
 
-    # Add relationship
+    missions = db.relationship('Mission', back_populates='scientist')
+    planets = association_proxy('missions', 'planet')
 
-    # Add serialization rules
-
-    # Add validation
+    serialize_rules = ("-missions.scientist",)
 
 
 class Mission(db.Model, SerializerMixin):
@@ -50,11 +50,17 @@ class Mission(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
 
-    # Add relationships
+    scientist_id = db.Column(db.Integer, db.ForeignKey('scientists.id'), nullable=False)
+    planet_id = db.Column(db.Integer, db.ForeignKey('planets.id'), nullable=False)
 
-    # Add serialization rules
+    scientist = db.relationship('Scientist', back_populates='missions')
+    planet = db.relationship('Planet', back_populates='missions')
 
-    # Add validation
+    serialize_rules = ("-planet.missions", "-scientist.missions",)
 
 
-# add any models you may need.
+
+# making sure dependencies are working
+# POSTMAN
+# validations
+# associations and naming those variables

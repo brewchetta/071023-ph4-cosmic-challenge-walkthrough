@@ -25,6 +25,58 @@ db.init_app(app)
 def home():
     return ''
 
+# GET /planets
+@app.get('/planets')
+def all_planets():
+    planets = Planet.query.all()
+    planet_dict = [ planet.to_dict(rules=("-missions",)) for planet in planets ]
+    return jsonify( planet_dict ), 200
+
+# GET /planets/:id
+@app.get('/planets/<int:id>')
+def planet_by_id(id):
+    try:
+        planet = Planet.query.filter(Planet.id == id).first()
+        return jsonify( planet.to_dict() ), 200
+    except AttributeError:
+        return jsonify( {"error": "No planet found"} ), 404
+
+# GET /scientists
+@app.get('/scientists')
+def all_scientists():
+    scientists = Scientist.query.all()
+    scientist_dict = [ scientist.to_dict(rules=("-missions",)) for scientist in scientists ]
+    return jsonify( scientist_dict ), 200
+
+# GET /scientists/:id
+@app.get('/scientists/<int:id>')
+def scientist_by_id(id):
+    try:
+        scientist = Scientist.query.filter(Scientist.id == id).first()
+        return jsonify( scientist.to_dict() ), 200
+    except AttributeError:
+        return jsonify( {"error": "No scientist found"} ), 404
+
+# POST /scientists
+@app.post('/scientists')
+def create_scientist():
+    data = request.json
+    print(data)
+    try:
+        scientist = Scientist(name=data["name"], field_of_study=data["field_of_study"])
+        db.session.add( scientist )
+        db.session.commit()
+        return jsonify( scientist.to_dict() ), 201
+    except:
+        return { "error": "Not acceptable", "img": "https://httpstatusdogs.com/img/406.jpg" }, 406
+
+
+# PATCH /scientists/:id
+
+# DELETE /scientists/:id
+
+# POST /missions
+
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
